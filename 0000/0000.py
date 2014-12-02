@@ -1,6 +1,5 @@
 #coding:utf-8
 import Image, ImageDraw, ImageFont, sys
-
 '''
 相关资料：
 1. PIL pyhton图像处理库，64位的库可以在http://www.lfd.uci.edu/~gohlke/pythonlibs/上查找已经编译的
