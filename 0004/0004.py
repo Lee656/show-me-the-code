@@ -16,7 +16,7 @@ def calc_words(data):
     word = ""
     word_cnt = {}
     for s in data:
-        if s.isalpha() or s == r"'":
+        if s.isalpha() or s == r"'" or s == '-':
             word += s
         else:
             if word:
