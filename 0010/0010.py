@@ -1,6 +1,7 @@
 # coding:utf-8
 # 使用 Python 生成类似于下图中的字母验证码图片
-# 思路：使用random模块进行验证码字母生成，使用Image添加高斯噪声。Color map可以针对性的选择一下
+# 思路：使用random模块进行验证码字母生成，向Image添加高斯噪声，使用random.guass(mu,sigma)。
+# Color map可以针对性的选择一下，去掉显示不清晰的颜色
 
 import random, string, Image, ImageDraw, ImageFont
 
@@ -14,7 +15,7 @@ def add_guassian_noise(img, weight):
     for w in range(width):
         for h in range(height):
             r, g, b =  pixel[w, h]
-            pixel[w,h] = (r+int(random.uniform(0,1)*weight), g+int(random.uniform(0,1)*weight), b+int(random.uniform(0,1)*weight))
+            pixel[w,h] = (r+int(random.gauss(0,1)*weight), g+int(random.gauss(0,1)*weight), b+int(random.gauss(0,1)*weight))
 
 # 生成验证码
 def generate_captcha(size):
@@ -22,6 +23,7 @@ def generate_captcha(size):
     width ,height = size
     for i in range(4):
         captcha.append(random.choice(string.letters))
+    print 'CAPTCHA: %s' % captcha
     img = Image.new("RGB", size,(128,128,128))
     # draw captcha
     draw = ImageDraw.Draw(img)
@@ -32,7 +34,7 @@ def generate_captcha(size):
         draw.text(pos, ch, fill=(random.choice(COLOR_MAP)), font=font)
     del draw
     # add guassian noise
-    add_guassian_noise(img, 128)
+    add_guassian_noise(img, 80)
     return img
 
 
