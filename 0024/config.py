@@ -1,0 +1,3 @@
+#coding: utf-8
+
+SALT = "\xde`\xe4\xdcx\x01\x19\x91"

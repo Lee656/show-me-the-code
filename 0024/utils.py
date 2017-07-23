@@ -1,6 +1,8 @@
 #coding: utf-8
 
-import os, sha256, HMAC
+import os
+from hmac import HMAC
+from hashlib import sha256
 
 def encrypt_password(password, salt=None):
     if salt is None:
