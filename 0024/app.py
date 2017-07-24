@@ -5,7 +5,21 @@ from run import app
 from model import User, WunderList
 import utils, config
 
+
+def login_required(func):
+    '''
+    登录检查
+    '''
+    @functools.wraps(func)
+    def wrapper(*args, **kw):
+        if session.get('user', None) is None:
+            return redirect(url_for(login))
+        return func(*args, **kw)
+    return wrapper
+
+
 @app.route('/')
+@login_required
 def index():
     return "Hello World"
 
@@ -64,6 +78,7 @@ def register():
         redirect(url_for(login))
 
 @app.route('/logout/', methods=['GET'])
+@login_required
 def logout():
     session.pop('user', None)
     return redirect(url_for('login'))
