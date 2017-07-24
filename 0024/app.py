@@ -1,6 +1,6 @@
 #coding: utf-8
 
-from flask import request, session, redirect, url_for, render_template, jsonify
+from flask import request, session, redirect, url_for, render_template, jsonify, flash
 from run import app
 from model import User, WunderList
 import utils, config
@@ -11,47 +11,57 @@ def index():
 
 @app.route('/login/', methods=['GET', 'POST'])
 def login():
-    if request.methods == 'GET':
+    if request.method == 'GET':
         return render_template('login.html')
-    elif request.methods == 'POST':
+    elif request.method == 'POST':
         username = request.form.get('username', None)
         password = request.form.get('password', None)
+
         if username is None or password is None:
-            print 'username or password is None'
-        password = unicode(password)
-        user = User.query.filter_by(username=unicode(username)).first()
+            flash(u'请检查输入是否为空', 'danger')
+            return redirect(url_for(login))
+
+        user = User.query.filter_by(username=username).first()
         if user is None:
-            print 'user is not exist'
-        proc_password = utils.encrypt_password(password, salt=config.SALT)
-        if utils.check_password(user.password, proc_password):
-            session['user'] = user.nickname
-            # 记录session
-            print 'login ok'
-        else:
-            print 'password erro'
+            flash(u'该用户不存在', 'danger')
+            return redirect(url_for(login))
 
-@app.route('/register/', methods=['POST'])
+        if not utils.check_password(user.password, password):
+            flash(u'密码错误', 'danger')
+            return redirect(url_for(login))
+
+        session['user'] = user.nickname
+        return redirect(url_for(index))
+
+@app.route('/register/', methods=['GET', 'POST'])
 def register():
-    username = request.form.get('username', None)
-    nickname = request.form.get('nickname', None)
-    password = request.form.get('password', None)
-    password_again = request.form.get('password_again', None)
-    print username, nickname, password, password_again
+    if request.method == 'GET':
+        return render_template('register.html')
+    elif request.method == 'POST':
+        username = request.form.get('username', None)
+        nickname = request.form.get('nickname', None)
+        password = request.form.get('password', None)
+        password_again = request.form.get('password_again', None)
 
-    if username is None or nickname is None or password is None or password_again is None:
-        print u'输入参数不合法'
-    password, password_again, username, nickname = unicode(password), unicode(password_again), unicode(username), unicode(nickname)
+        if username is None or nickname is None or password is None or password_again is None:
+            flash(u'请检查输入是否为空', 'danger')
+            redirect(url_for(register))
+        password, password_again, username, nickname = unicode(password), unicode(password_again), unicode(username), unicode(nickname)
 
-    # 1. 用户名是否存在
-    user = User.query.filter_by(username=username).first()
-    if user:
-        print 'user is exist'
-    # 2. 密码输入不一致
-    if password != password_again:
-        print 'password is not same'
+        # 1. 用户名是否存在
+        user = User.query.filter_by(username=username).first()
+        if user:
+            flash(u'该用户名已被注册', 'danger')
+            redirect(url_for(register))
+        # 2. 密码输入不一致
+        if password != password_again:
+            flash(u'两次密码输入不一致', 'danger')
+            redirect(url_for(register))
 
-    proc_password = utils.encrypt_password(password, salt=config.SALT)
-    User.add(User(username, proc_password, nickname))
+        proc_password = utils.encrypt_password(password, salt=config.SALT)
+        User.add(User(username, proc_password, nickname))
+        flash(u'注册成功', 'success')
+        redirect(url_for(login))
 
 @app.route('/logout/', methods=['GET'])
 def logout():
