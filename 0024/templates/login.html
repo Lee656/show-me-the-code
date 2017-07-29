@@ -1,13 +1,10 @@
 {% extends 'base.html' %}
 
+{% block title %}Sign in{% endblock %}
 {% block body %}
-<ul class="nav nav-tabs">
-    <li role="presentation" class="active"><a href="#">Sign in</a></li>
-    <li role="presentation"><a href="/register/">Sign up</a></li>
-</ul>
 <div class="row">
     <div class="col-md-4 col-md-offset-4">
-        <form method="post" url="/login/">
+        <form method="post" action="/login/">
             <h2>Please sign in</h2>
             <div class="form-group">
                 <label for="username" class="sr-only">Username</label>

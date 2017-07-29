@@ -20,16 +20,22 @@ def login_required(func):
 
 
 @app.route('/')
-@login_required
 def index():
-    return "Hello World"
+    if session.get('user', None) is None: # 未登录
+        return render_template('index.html', page='home')
+    else:
+        username = session.get('user').get('username')
+        user = User.query.filter_by(username=username).first()
+        done =  user.wunderlist.filter_by(is_done=True).order_by(WunderList.date.desc()).all()
+        not_done = user.wunderlist.filter_by(is_done=False).order_by(WunderList.date.desc()).all() 
+        return render_template('index.html', page='home', data={'done': done, 'not_done': not_done})
 
 @app.route('/login/', methods=['GET', 'POST'])
 def login():
     if request.method == 'GET':
         if session.get('user', None) is not None:
             return redirect(url_for('index'))
-        return render_template('login.html')
+        return render_template('login.html', page='signin')
     elif request.method == 'POST':
         username = request.form.get('username', None)
         password = request.form.get('password', None)
@@ -47,13 +53,13 @@ def login():
             flash(u'密码错误', 'danger')
             return redirect(url_for('login'))
 
-        session['user'] = user.nickname
+        session['user'] = {'username': user.username, 'nickname': user.nickname}
         return redirect(url_for('index'))
 
 @app.route('/register/', methods=['GET', 'POST'])
 def register():
     if request.method == 'GET':
-        return render_template('register.html')
+        return render_template('register.html', page='signup')
     elif request.method == 'POST':
         username = request.form.get('username', None)
         nickname = request.form.get('nickname', None)
@@ -84,7 +90,34 @@ def register():
 @login_required
 def logout():
     session.pop('user', None)
-    return redirect(url_for('login'))
+    return redirect(url_for('index'))
+
+@app.route('/wunderlist/', methods=['POST', 'GET', 'DELETE'])
+@login_required
+def wunderlist():
+    if request.method == 'POST': # 提交清单
+        content = request.form.get('content', '').strip()
+        if not content: 
+            flash(u'提交的内容为空，请检查！', 'danger')
+            return redirect(url_for('index'))
+
+        if session.get('user') is None:
+            flash(u'请先登录!', 'danger')
+            return redirect(url_for('index'))
+
+        username = session.get('user').get('username')
+        user = User.query.filter_by(username=username).first()
+        WunderList.add(WunderList(content, user.id))
+        return redirect(url_for('index'))
+
+    elif request.method == 'DELETE': # 删除清单
+        pass
+    elif request.method == 'PUT': # 修改清单(标记完成)
+        pass
+
+
+
+
 
 if __name__=='__main__':
     app.run(debug=True)

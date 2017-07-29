@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block title %}Sign up{% endblock %}
+{% block body %}
+<div class="row">
+    <div class="col-md-4 col-md-offset-4">
+        <form method="post" action="/register/">
+            <h2>Please sign up</h2>
+            <div class="form-group">
+                <label for="username" class="sr-only">Username</label>
+                <input type="text" id="username" name="username" class="form-control" placeholder="Username" required="" autofocus="">
+            </div>
+            <div class="form-group">
+                <label for="nickname" class="sr-only">Nickname</label>
+                <input type="text" id="nickname" name="nickname" class="form-control" placeholder="Nickname" required="">
+            </div>
+            <div class="form-group">
+                <label for="password" class="sr-only">Password</label>
+                <input type="password" id="password" name="password" class="form-control" placeholder="Password" required="">
+            </div>
+            <div class="form-group">
+                <label for="password_again" class="sr-only">Password again</label>
+                <input type="password" id="password_again" name="password_again" class="form-control" placeholder="Password again" required="">
+            </div>
+            <button class="btn btn-lg btn-primary btn-block" type="submit">Sign up</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

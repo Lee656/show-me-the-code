@@ -28,7 +28,7 @@ class User(db.Model):
         self.nickname = nickname
 
     def __repr__(self):
-        return '<[User username: `{}`, password: `{}`, nickname: `{}`'.format(self.username, self.password, self.nickname)
+        return '<[User username: {0}, password: {1}, nickname: {2}'.format(self.username.encode('utf-8'), self.password.encode('utf-8'), self.nickname.encode('utf-8'))
 
     @staticmethod
     def add(user):
@@ -43,13 +43,14 @@ class WunderList(db.Model):
 
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
-    def __init__(self, content, date=None, is_done=False):
+    def __init__(self, content, user_id, date=None, is_done=False):
         self.content = content
         self.is_done = is_done
-        if date is None: date = datetime.utcnow()
+        self.user_id = user_id
+        if date is None: self.date = datetime.utcnow()
 
     def __repr__(self):
-        return '<[WunderList content: `{}`, date: `{}`>'.formate(self.content, self.date)
+        return '<[WunderList content:{0}, date: {1}, user_id: {2}, is_done: {3}>'.format(self.content.encode('utf-8'), self.date, self.user_id, self.is_done)
 
     @staticmethod
     def add(wunderlist):
@@ -60,3 +61,8 @@ class WunderList(db.Model):
     def delete(wunderlist):
         db.session.delete(wunderlist)
         db.session.commit()
+
+if __name__ == '__main__':
+    init_db()
+
+
