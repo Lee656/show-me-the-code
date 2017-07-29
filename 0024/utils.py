@@ -20,6 +20,4 @@ def encrypt_password(password, salt=None):
     return unicode(salt + result)
 
 def check_password(hashed, input_password):
-    print hashed
-    print encrypt_password(input_password, hashed[:16].encode())
     return hashed == encrypt_password(input_password, hashed[:16].encode())
