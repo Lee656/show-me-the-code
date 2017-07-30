@@ -108,6 +108,7 @@ def wunderlist():
         username = session.get('user').get('username')
         user = User.query.filter_by(username=username).first()
         WunderList.add(WunderList(content, user.id))
+        flash(u'创建清单成功!', 'info')
         return redirect(url_for('index'))
 
     elif request.method == 'DELETE': # 删除清单
@@ -115,6 +116,7 @@ def wunderlist():
         wunderlist = WunderList.query.filter_by(id=id).first()
         if not wunderlist: return 'FAIL'
         WunderList.delete(wunderlist)
+        flash(u'删除清单成功!', 'info')
         return 'SUCC'
         
     elif request.method == 'PUT': # 修改清单(标记完成)
@@ -124,6 +126,7 @@ def wunderlist():
         wunderlist.is_done = True
         wunderlist.date = datetime.utcnow()
         WunderList.update(wunderlist)
+        flash(u'恭喜完成清单!', 'info')
         return 'SUCC'
 
 
