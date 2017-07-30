@@ -4,6 +4,7 @@
 
 {% block link %}
 <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs-3.3.7/dt-1.10.15/datatables.min.css"/>
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/jquery-confirm/3.2.3/jquery-confirm.min.css">
 {% endblock %}
 
 {% block body %}
@@ -30,7 +31,7 @@
 <div class="row">
     <div class="col-md-12"> 
         {% if data.get('not_done') %}
-        <table id="not_done" class="table table-hover table-condensed">
+        <table id="not_done_table" class="table table-hover table-condensed">
             <thead>
                 <th class="text-center">序号</th>
                 <th class="text-center">内容</th>
@@ -42,10 +43,44 @@
                 <tr>
                     <td class="text-center">{{ loop.index }}</td>
                     <td class="text-center">{{ item.content }}</td>
-                    <td class="text-center">{{ item.date }}</td>
-                    <td class="text-center">完成 | 删除</td>
-                </tr>
-                {% endfor %}
+                    <td class="text-center">{{ item.date.strftime('%Y-%m-%d %H:%M:%S') }}</td> 
+                    <td class="text-center" wunderlist_id="{{ item.id }}"> 
+                        <a class="not_done_ok" href="#">
+                            <span class="glyphicon glyphicon-ok" aria-hidden="true">
+                            </span>
+                        </a> 
+                        &nbsp;&nbsp;&nbsp;&nbsp; 
+                        <a class="not_done_remove" href="#">
+                            <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+                        </a> 
+                    </td>
+                </tr> 
+                {% endfor %} 
+            </tbody>
+        </table>
+        {% endif %}
+        {% if data.get('done') %}
+        <table id="done_table" class="table table-hover table-condensed">
+            <thead>
+                <th class="text-center">序号</th>
+                <th class="text-center">内容</th>
+                <th class="text-center">日期</th>
+                <th class="text-center">操作</th>
+            </thead>
+            <tbody>
+                {% for item in data.get('done') %}
+                <tr>
+                    <td class="text-center">{{ loop.index }}</td>
+                    <td class="text-center">{{ item.content }}</td>
+                    <td class="text-center">{{ item.date.strftime('%Y-%m-%d %H:%M:%S') }}</td> 
+                    <td class="text-center" wunderlist_id="{{ item.id }}"> 
+                        <a class="done_remove" href="#">
+                            <span class="glyphicon glyphicon-remove" aria-hidden="true">
+                            </span>
+                        </a> 
+                    </td> 
+                </tr> 
+                {% endfor %} 
             </tbody>
         </table>
         {% endif %}
@@ -56,13 +91,69 @@
 
 {% block script %}
 <script type="text/javascript" src="https://cdn.datatables.net/v/bs-3.3.7/dt-1.10.15/datatables.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery-confirm/3.2.3/jquery-confirm.min.js"></script>
 <script type="text/javascript">
 $(document).ready(function() {
-    $("#not_done").DataTable({
+    $("#not_done_table").DataTable({
         "ordering": true,
         "info": false,
         "lengthMenu": [[10, 25, 50], [10, 25, 50]]
     });
+
+    $("#done_table").DataTable({
+        "ordering": true,
+        "info": false,
+        "lengthMenu": [[10, 25, 50], [10, 25, 50]]
+    });
+
+
+    $(".not_done_ok").on("click", function() {
+        process_wunderlist($(this), "put");
+    });
+
+    $(".not_done_remove").on("click", function() {
+        var element = $(this);
+        $.confirm({
+            useBootstrap: true,
+            title: "警告",
+            content: "确定要删除吗?",
+            buttons: {
+                confirm: function() {
+                    process_wunderlist(element, "delete");
+                },
+                cancel: function() {}
+            }
+        });
+    });
+
+    $(".done_remove").on("click", function() {
+        var element = $(this);
+        $.confirm({
+            useBootstrap: true,
+            title: "警告",
+            content: "确定要删除吗?",
+            buttons: {
+                confirm: function() {
+                    process_wunderlist(element, "delete");
+                },
+                cancel: function() {}
+            }
+        });
+    });
+
+    function process_wunderlist(element, op) {
+        var wunderlist_id = $(element).parent().attr("wunderlist_id");
+        $.ajax({
+            url: "/wunderlist/",
+            type: op,
+            data: {
+                "wunderlist_id": wunderlist_id
+            },
+            success: function(result) {
+                $(location).attr("href", "/");
+            }
+        });
+    }
 });
 </script>
 {% endblock %}

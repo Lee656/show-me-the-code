@@ -1,8 +1,8 @@
-#coding: utf-8
-
-from flask import request, session, redirect, url_for, render_template, jsonify, flash
-from run import app
+#coding: utf-8 
+from flask import request, session, redirect, url_for, render_template, jsonify, flash 
+from run import app 
 from model import User, WunderList
+from datetime import datetime
 import functools
 import utils, config
 
@@ -92,7 +92,7 @@ def logout():
     session.pop('user', None)
     return redirect(url_for('index'))
 
-@app.route('/wunderlist/', methods=['POST', 'GET', 'DELETE'])
+@app.route('/wunderlist/', methods=['POST', 'PUT', 'DELETE'])
 @login_required
 def wunderlist():
     if request.method == 'POST': # 提交清单
@@ -111,10 +111,20 @@ def wunderlist():
         return redirect(url_for('index'))
 
     elif request.method == 'DELETE': # 删除清单
-        pass
+        id = request.form.get('wunderlist_id', -1)
+        wunderlist = WunderList.query.filter_by(id=id).first()
+        if not wunderlist: return 'FAIL'
+        WunderList.delete(wunderlist)
+        return 'SUCC'
+        
     elif request.method == 'PUT': # 修改清单(标记完成)
-        pass
-
+        id = request.form.get('wunderlist_id', -1)
+        wunderlist = WunderList.query.filter_by(id=id).first()
+        if not wunderlist: return 'FAIL'
+        wunderlist.is_done = True
+        wunderlist.date = datetime.utcnow()
+        WunderList.update(wunderlist)
+        return 'SUCC'
 
 
 

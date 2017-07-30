@@ -61,6 +61,10 @@ class WunderList(db.Model):
     def delete(wunderlist):
         db.session.delete(wunderlist)
         db.session.commit()
+    
+    @staticmethod
+    def update(wunderlist):
+        db.session.commit()
 
 if __name__ == '__main__':
     init_db()
